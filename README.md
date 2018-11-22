@@ -3,7 +3,7 @@ ios浏览器滚动bug修复
 
 ## 调用方式
 new fixIosScroll({</br>
-&nbsp;&nbsp;element: item,</br>
+	element: item,</br>
 &nbsp;&nbsp;threshold: 50,</br>
 &nbsp;&nbsp;loadFn: function(){},</br>
 &nbsp;&nbsp;atTheTop: function(){},</br>
