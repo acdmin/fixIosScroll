@@ -8,9 +8,9 @@ const fixIosScroll = function(option) {
     this.scrollYDistance = 1; //滚动拉回到Y轴顶端或底端像素
     this.inAnimation = false; //是否处于滚动回拉中
     this.threshold = option.threshold?option.threshold:0;
-    this._atTheTop = option.atTheTop && option.atTheTop === 'function'
-    this._atTheBottom = option.atTheBottom && option.atTheBottom === 'function'
-    this._loadFn = option.loadFn && option.loadFn === 'function'
+    this._atTheTop = option.atTheTop// && option.atTheTop === 'function'
+    this._atTheBottom = option.atTheBottom// && option.atTheBottom === 'function'
+    this._loadFn = option.loadFn// && (typeof option.loadFn == 'function')
     
     this._init(option);
 }
