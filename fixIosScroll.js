@@ -1,22 +1,28 @@
 const fixIosScroll = function(option) {
     this.element = option.element;
     this.firstChild = this.element.firstElementChild;
-    this.lastTime = 0;
-    this.incremental = 0; //增长的值
+    this.t1 = 0;
+    this.t2 = 0;
+    this.sTimer = null; //滚动是否结束
+    this.loadFnTimer = null;
     this.direction = 1; //滚动方向,向上:1 向下:-1
     this.lastScrollY = 0;
-    this.scrollYDistance = 1; //滚动拉回到Y轴顶端或底端像素
-    this.inAnimation = false; //是否处于滚动回拉中
-    this.threshold = option.threshold?option.threshold:0;
-    this._atTheTop = option.atTheTop// && option.atTheTop === 'function'
-    this._atTheBottom = option.atTheBottom// && option.atTheBottom === 'function'
-    this._loadFn = option.loadFn// && (typeof option.loadFn == 'function')
-    
+    this.backYdistance = (option.backYdistance&&typeof (option.backYdistance*1) === 'number'&&option.backYdistance>=0&&option.backYdistance<=3)?option.backYdistance:1; //滚动拉回到Y轴顶端或底端像素,最大3个像素单位
+    this.inScrollBack = false; //是否处于滚动回拉中
+    this.threshold = option.threshold&&typeof (option.threshold*1) === 'number'?option.threshold:0;
+    this._atTheTop = option.atTheTop&&typeof option.atTheTop === 'function'?option.atTheTop:null;
+    this._atTheBottom = option.atTheBottom&&typeof option.atTheBottom === 'function'?option.atTheBottom:null;
+    this._onLoadFn = option.onLoadFn&&typeof option.onLoadFn === 'function'?option.onLoadFn:null;
+    this._onScroll = option.onScroll&&typeof option.onScroll === 'function'?option.onScroll:null
+    this._onScrollEnd = option.onScrollEnd&&typeof option.onScrollEnd === 'function'?option.onScrollEnd:null;
     this._init(option);
 }
 fixIosScroll.prototype = {
+    constructor: fixIosScroll,
     _init: function(){
-        this.ScrollBackFn()
+        if( this.element.scrollTop == 0 ){
+            this.element.scrollTop = this.backYdistance;
+        }
         this.element.addEventListener('scroll', (e) => {
             this.bindScrollFn(e)
             e.preventDefault()
@@ -24,45 +30,50 @@ fixIosScroll.prototype = {
         }, false)
     },
     bindScrollFn(e){
-        let nowScrollY = e.target.scrollTop
-        if(nowScrollY > this.lastScrollY){
-            this.direction = 1
-        }else{
-            this.direction = -1
-        }
-        this.lastScrollY = nowScrollY
-        this.ScrollBackFn()
-    },
-    ScrollToTarget(){
-        if (this.incremental > this.scrollYDistance) {
-            this.inAnimation = false
-            this.incremental = 0
+        let nowScrollY = e.target.scrollTop;
+        this.setDirection(nowScrollY)
+        this._onScroll&&this._onScroll(e)
+        clearTimeout( this.sTimer )
+        this.t1 = nowScrollY;
+        this.sTimer = setTimeout(() => {
+            this.scrollWhithHandle()
+        }, 30);
+        if( nowScrollY == 0 ){
+            this.element.scrollTop = this.backYdistance;
             return
         }
-        this.element.scrollTop += this.direction*this.incremental++
-        setTimeout(() => {
-            this.ScrollToTarget()
-        }, 30);
-    },
-    ScrollBackFn(){
-        if(this.firstChild.offsetHeight < this.element.offsetHeight)return
-        let _top = this.element.scrollTop;
-        if( this.firstChild.offsetHeight - (this.element.offsetHeight + _top) <= this.threshold && this.threshold > 0 ){
-            //console.log('到指定区间了')
-            this._loadFn&&this._loadFn()
+        if( this.firstChild.offsetHeight - (this.element.offsetHeight + nowScrollY) <= this.threshold && this.threshold > 0 && this.direction != -1 ){
+            clearTimeout( this.loadFnTimer )
+            this.loadFnTimer = setTimeout(() => {
+                //console.log('到达指定区间了')
+                this._onLoadFn&&this._onLoadFn()
+            }, 30);
         }
-        if ( (_top == 0 || _top == this.firstChild.offsetHeight - this.element.offsetHeight) && !this.inAnimation ) {
-            if( _top == 0 ){
+    },
+    scrollWhithHandle(){
+        if(this.inScrollBack)return
+        let _scrollTop = this.element.scrollTop;
+        this.t2 = _scrollTop;
+        if( this.t1 == this.t2 ){
+            //console.log('滚动结束了')
+            this._onScrollEnd&&this._onScrollEnd()
+            if( _scrollTop == this.backYdistance ){
                 //console.log('到顶了')
                 this._atTheTop&&this._atTheTop()
             }
-            if( _top == this.firstChild.offsetHeight - this.element.offsetHeight ){
+            if( this.firstChild.offsetHeight - (_scrollTop+this.element.offsetHeight) == 0 ){
                 //console.log('到底了')
+                this.element.scrollTop = _scrollTop - this.backYdistance;
                 this._atTheBottom&&this._atTheBottom()
             }
-            this.inAnimation = true
-            this.incremental = 0
-            this.ScrollToTarget()
         }
+    },
+    setDirection(nowScrollY){
+        if(nowScrollY > this.lastScrollY){
+            this.direction = 1;
+        }else{
+            this.direction = -1;
+        }
+        this.lastScrollY = nowScrollY;
     }
 }
