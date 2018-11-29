@@ -2,7 +2,7 @@
 ios浏览器滚动bug修复
 
 ### 调用方式
-new fixIosScroll({
+new fixIosScroll({</br>
 &nbsp;&nbsp;&nbsp;&nbsp;element: dom,</br>
 &nbsp;&nbsp;&nbsp;&nbsp;threshold: 20,</br>
 &nbsp;&nbsp;&nbsp;&nbsp;backYdistance: 1,</br>
