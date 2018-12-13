@@ -1,6 +1,8 @@
 ## 功能说明
 
-    ios Safari浏览器,在可滚动内容父级开启回弹效果时即:-webkit-overflow-scrolling:touch,内容滚动容易出现卡顿,快速滚动时甚至出现无法滚动的问题.
+    ios Safari浏览器,在可滚动内容父级开启回弹效果时,
+    即:-webkit-overflow-scrolling:touch,内容滚动容易出现卡顿,
+    快速滚动时甚至出现无法滚动的问题.
 
 ## 调用方式
 
