@@ -20,6 +20,11 @@ const fixIosScroll = function(option) {
 fixIosScroll.prototype = {
     constructor: fixIosScroll,
     _init: function(){
+        //默认撑开高度，使父级默认可以滚动，防止在IOS设备滚动bug
+        let emptyChild = document.createElement('div');
+            emptyChild.style.cssText = 'position:absolute;left:0;top:0;height:101%;width:100%;z-index:-100;';
+        emptyChild.innerHTML = '<!-- 请勿删除 -->';
+        this.element.appendChild(emptyChild);
         if( this.element.scrollTop == 0 ){
             this.element.scrollTop = this.backYdistance;
         }
