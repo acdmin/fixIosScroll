@@ -20,6 +20,7 @@ const fixIosScroll = function(option) {
 fixIosScroll.prototype = {
     constructor: fixIosScroll,
     _init: function(){
+        //创建加载定点元素
         //默认撑开高度，使父级默认可以滚动，防止在IOS设备滚动bug
         let emptyChild = document.createElement('div');
             emptyChild.style.cssText = 'position:absolute;left:0;top:0;height:101%;width:100%;z-index:-100;';
@@ -62,14 +63,12 @@ fixIosScroll.prototype = {
         if( this.t1 == this.t2 ){
             //console.log('滚动结束了')
             this._onScrollEnd&&this._onScrollEnd()
-            if( _scrollTop == this.backYdistance ){
+            if( this.isToTop(_scrollTop) ){
                 //console.log('到顶了')
                 this._atTheTop&&this._atTheTop()
             }
-            if( this.firstChild.offsetHeight - (_scrollTop+this.element.offsetHeight) == 0 ){
-                //console.log('到底了')
-                this.element.scrollTop = _scrollTop - this.backYdistance;
-                this._atTheBottom&&this._atTheBottom()
+            if( this.isToBottom(_scrollTop) ){
+                this._atTheBottom&&this._atTheBottom();
             }
         }
     },
@@ -80,5 +79,11 @@ fixIosScroll.prototype = {
             this.direction = -1;
         }
         this.lastScrollY = nowScrollY;
+    },
+    isToTop(scrollTop){
+        return scrollTop == this.backYdistance;
+    },
+    isToBottom(scrollTop){
+        return this.firstChild.offsetHeight - (scrollTop+this.element.offsetHeight) == 0;
     }
 }
